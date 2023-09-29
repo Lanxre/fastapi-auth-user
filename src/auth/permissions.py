@@ -19,12 +19,13 @@ class RolePermissions:
 		try:
 			current_user: User = auth_service.get_user_by_token(db, token)
 			for role in self.roles:
-				if role.value in current_user.roles:
-					return True
+				for user_role in current_user.roles:
+					if role.value == user_role.name:
+						return True
 			else:
 				raise PermissionException(message=f'Permission denied', role=self.roles)
 		except PermissionException as err:
 			raise HTTPException(status_code=404, detail=str(err))
 
 		except Exception as err:
-			raise HTTPException(status_code=404, detail=str(err))
+			raise HTTPException(status_code=404, detail="Permission denied")
