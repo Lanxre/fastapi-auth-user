@@ -15,7 +15,7 @@ from .schema import (
 	UserCreate,
 	UserTokenResponse,
 	LiteUser,
-	UserUpdate
+	UserUpdate, UserRoles
 )
 from .service import UserService
 
@@ -55,7 +55,6 @@ def get_user(
 def create_user(
 		user: UserCreate,
 		db: Database = Depends(db_helper.session_dependency),
-		access: bool = Depends(permissions_admin_moderator.get_permissions)
 
 ):
 	user_service = UserService(db)
@@ -81,3 +80,35 @@ def delete_user(
 ):
 	user_service = UserService(db)
 	return user_service.delete(user_id)
+
+
+@user_router.get("/user/role/{user_id}", response_model=UserRoles)
+def get_user_roles(
+		user_id: int,
+		db: Database = Depends(db_helper.session_dependency),
+		access: bool = Depends(permissions_admin_moderator.get_permissions)
+):
+	user_service = UserService(db)
+	return user_service.get_user_roles(user_id)
+
+
+@user_router.post("/user/role/{user_id}", response_model=UserRoles)
+def add_user_role(
+		user_id: int,
+		role: RoleNameEnum,
+		db: Database = Depends(db_helper.session_dependency),
+		access: bool = Depends(permissions_admin_moderator.get_permissions)
+):
+	user_service = UserService(db)
+	return user_service.add_role_for_user(user_id, role)
+
+
+@user_router.delete("/user/role/{user_id}", response_model=UserRoles)
+def add_user_role(
+		user_id: int,
+		role: RoleNameEnum,
+		db: Database = Depends(db_helper.session_dependency),
+		access: bool = Depends(permissions_admin_moderator.get_permissions)
+):
+	user_service = UserService(db)
+	return user_service.delete_user_role(user_id, role)

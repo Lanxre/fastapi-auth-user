@@ -7,8 +7,8 @@ from database import (
 )
 from models import (
 	User,
-    Role,
-    RoleNameEnum
+	Role,
+	RoleNameEnum
 )
 
 from .schema import (
@@ -38,11 +38,52 @@ class UserRepository(BaseRepository):
 		self.db.refresh(db_obj)
 		return db_obj
 
-	def get_by_id(self, user_id: int) -> LiteUser:
+	def get_by_id(self, user_id: int) -> User:
 		return super().get_by_id(user_id)
 
-	def update(self, obj_id: int, obj_in: UserUpdate) -> LiteUser:
+	def update(self, obj_id: int, obj_in: UserUpdate) -> User:
 		return super().update(obj_id, obj_in)
 
-	def delete(self, user_id: int) -> LiteUser:
+	def delete(self, user_id: int) -> User:
 		return super().delete(user_id)
+
+	def add_role(self, user_id: int, role: RoleNameEnum) -> User:
+		role_obj = self.get_role(role)
+		user: User = self.get_by_id(user_id)
+
+		if not user:
+			raise RepositoryException(status_code=404, message='Not found user with this id')
+
+		if role_obj in user.roles:
+			raise RepositoryException(status_code=404, message='User has this role')
+
+		user.roles.append(role_obj)
+		self.db.add(user)
+		self.db.commit()
+		self.db.refresh(user)
+		return user
+
+	def delete_role(self, user_id: int, role: RoleNameEnum) -> User:
+		role_obj = self.get_role(role)
+		user: User = self.get_by_id(user_id)
+		if not user:
+			raise RepositoryException(status_code=404, message='Not found user with this id')
+
+		if len(user.roles) == 1:
+			raise RepositoryException(status_code=404, message='User need have one role')
+
+		if role_obj not in user.roles:
+			raise RepositoryException(status_code=404, message='User hasnt this role')
+
+		user.roles.remove(role_obj)
+		self.db.add(user)
+		self.db.commit()
+		self.db.refresh(user)
+		return user
+
+	def get_role(self, role):
+		role_obj = self.db.query(Role).filter(Role.name == role.value).first()
+		if not role_obj:
+			raise RepositoryException(status_code=500, message=f'Role [{role.value}] not created')
+
+		return role_obj

@@ -1,4 +1,5 @@
 import re
+from typing import List
 
 from pydantic import (
 	BaseModel,
@@ -38,6 +39,7 @@ class UserCreate(UserBase):
 
 UserAuth = UserCreate
 
+
 class LiteUser(UserBase):
 	id: int
 
@@ -51,6 +53,22 @@ class Token(BaseModel):
 
 class UserToken(LiteUser):
 	token: Token
+
+
+class UserRole(BaseModel):
+	id: int = None
+	name: str
+
+	class Config:
+		orm_mode = True
+
+
+class UserRoles(BaseModel):
+	id: int
+	roles: List[UserRole]
+
+	class Config:
+		orm_mode = True
 
 
 class UserTokenResponse(UserToken, LiteUser):

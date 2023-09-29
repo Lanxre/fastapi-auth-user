@@ -1,4 +1,4 @@
-from typing import List, Annotated
+from typing import List, Union
 
 from auth import auth_service
 from database import (
@@ -6,15 +6,16 @@ from database import (
 	RepositoryException
 )
 from fastapi import HTTPException
+from models import RoleNameEnum
 
+from .repository import UserRepository
 from .schema import (
 	LiteUser,
 	UserCreate,
 	UserTokenResponse,
-	UserUpdate
+	UserUpdate, UserRoles
 )
 from .utils import UserUtils
-from .repository import UserRepository
 
 
 class UserService:
@@ -98,7 +99,37 @@ class UserService:
 		except Exception as err:
 			raise HTTPException(status_code=500, detail=str(err))
 
-	def __is_user_exist(self, user: Annotated[UserCreate, UserUpdate]):
+	def get_user_roles(self, user_id: int) -> UserRoles:
+		try:
+			user = self._user_repository.get_by_id(user_id)
+			return UserRoles.from_orm(user)
+		except HTTPException as http_err:
+			raise http_err
+
+		except Exception:
+			raise HTTPException(status_code=500, detail="Cannot get role this user")
+
+	def add_role_for_user(self, user_id: int, role: RoleNameEnum) -> UserRoles:
+		try:
+			user = self._user_repository.add_role(user_id, role)
+			return UserRoles.from_orm(user)
+		except HTTPException as http_err:
+			raise http_err
+
+		except Exception as err:
+			raise HTTPException(status_code=404, detail=str(err))
+
+	def delete_user_role(self, user_id: int, role: RoleNameEnum) -> UserRoles:
+		try:
+			user = self._user_repository.delete_role(user_id, role)
+			return UserRoles.from_orm(user)
+		except HTTPException as http_err:
+			raise http_err
+
+		except Exception as err:
+			raise HTTPException(status_code=404, detail=str(err))
+
+	def __is_user_exist(self, user: Union[UserCreate, UserUpdate]):
 		isExist = UserUtils.get_user_by_email(self.__db, user.email)
 		if isExist is not None:
 			raise HTTPException(status_code=409, detail="Already exist with this email")
