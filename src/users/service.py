@@ -1,0 +1,115 @@
+from typing import List, Annotated
+
+from auth import auth_service
+from database import (
+	Database,
+	RepositoryException
+)
+from fastapi import HTTPException
+
+from .schema import (
+	LiteUser,
+	UserCreate,
+	UserTokenResponse,
+	UserUpdate
+)
+from .utils import UserUtils
+from .repository import UserRepository
+
+
+class UserService:
+	def __init__(self, db: Database):
+		self.__db = db
+		self._user_repository = UserRepository(db)
+
+	@property
+	def repository(self):
+		return self._user_repository, self._user_repository, self._user_repository
+
+	@repository.setter
+	def repository(self, db: Database):
+		self._user_repository = UserRepository(db)
+
+	def get_all_users(self, skip: int = 0, limit: int = 100) -> List[LiteUser]:
+		try:
+			users = self._user_repository.get_all(skip, limit)
+			return users
+
+		except RepositoryException as re:
+			raise HTTPException(status_code=re.status_code, detail=str(re.message))
+
+		except HTTPException as http_err:
+			raise http_err
+
+		except Exception as err:
+			raise HTTPException(status_code=422, detail=str(err.args[0]))
+
+	def create(self, user: UserCreate) -> UserTokenResponse:
+		try:
+			self.__is_user_exist(user)
+			user.password = auth_service.password_hash(user.password)
+			created_user = self._user_repository.create(user)
+			user_token = self.__create_user_token_response(created_user)
+			return user_token
+
+		except RepositoryException as re:
+			raise HTTPException(status_code=re.status_code, detail=str(re.message))
+
+		except HTTPException as http_err:
+			raise http_err
+
+		except Exception as err:
+			raise HTTPException(status_code=500, detail=str(err))
+
+	def get_by_id(self, user_id: int) -> LiteUser:
+		try:
+			user: LiteUser = self._user_repository.get_by_id(user_id)
+			return user
+
+		except HTTPException as http_err:
+			raise http_err
+
+		except Exception as err:
+			raise HTTPException(status_code=500, detail=str(err))
+
+	def delete(self, user_id: int) -> LiteUser:
+		try:
+			user: LiteUser = self._user_repository.delete(user_id)
+			return user
+
+		except HTTPException as http_err:
+			raise http_err
+
+		except Exception as err:
+			raise HTTPException(status_code=500, detail=str(err))
+
+	def update(self, user_id: int, user: UserUpdate) -> UserTokenResponse:
+		try:
+			self.__is_user_exist(user)
+			if user.password is not None:
+				user.password = auth_service.password_hash(user.password)
+			updated_user: LiteUser = self._user_repository.update(user_id, user)
+			user_token = self.__create_user_token_response(updated_user)
+			return user_token
+
+		except HTTPException as http_err:
+			raise http_err
+
+		except Exception as err:
+			raise HTTPException(status_code=500, detail=str(err))
+
+	def __is_user_exist(self, user: Annotated[UserCreate, UserUpdate]):
+		isExist = UserUtils.get_user_by_email(self.__db, user.email)
+		if isExist is not None:
+			raise HTTPException(status_code=409, detail="Already exist with this email")
+
+	def __create_user_token_response(self, user) -> UserTokenResponse:
+		user_dict = UserCreate.from_orm(user).dict()
+		access_token = auth_service.create_access_token(data=user_dict)
+		user_token = UserTokenResponse(
+			id=user.id,
+			username=user.email,
+			email=user.email,
+			token=access_token,
+		)
+		return user_token
