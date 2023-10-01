@@ -17,7 +17,7 @@ from .schema import (
 	LiteUser,
 	UserUpdate, UserRoles
 )
-from .service import UserService
+from .service import user_service
 
 user_router = APIRouter(
 	prefix='/api',
@@ -37,7 +37,6 @@ def get_users(
 		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_user.get_permissions)
 ):
-	user_service = UserService(db)
 	return user_service.get_all_users(skip, limit)
 
 
@@ -47,7 +46,6 @@ def get_user(
 		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_user.get_permissions)
 ):
-	user_service = UserService(db)
 	return user_service.get_by_id(user_id)
 
 
@@ -57,7 +55,6 @@ def create_user(
 		db: Database = Depends(db_helper.session_dependency),
 
 ):
-	user_service = UserService(db)
 	return user_service.create(user)
 
 
@@ -68,7 +65,6 @@ def update_user(
 		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
-	user_service = UserService(db)
 	return user_service.update(user_id, user)
 
 
@@ -78,7 +74,6 @@ def delete_user(
 		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
-	user_service = UserService(db)
 	return user_service.delete(user_id)
 
 
@@ -88,7 +83,6 @@ def get_user_roles(
 		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
-	user_service = UserService(db)
 	return user_service.get_user_roles(user_id)
 
 
@@ -99,7 +93,6 @@ def add_user_role(
 		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
-	user_service = UserService(db)
 	return user_service.add_role_for_user(user_id, role)
 
 
@@ -110,5 +103,4 @@ def add_user_role(
 		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
-	user_service = UserService(db)
 	return user_service.delete_user_role(user_id, role)
