@@ -8,7 +8,6 @@ from fastapi.templating import Jinja2Templates
 
 from users.router import user_router
 from auth.router import auth_router
-from auth import auth_service
 
 app = FastAPI(title='AuthApi')
 
@@ -31,13 +30,9 @@ parser.add_argument("-t", "--template", required=False, action=argparse.BooleanO
 args = parser.parse_args()
 
 if args.template:
+	from page import page_router
 	app.mount("/static", StaticFiles(directory="static"), name="static")
-	templates = Jinja2Templates(directory="templates")
-
-	@app.get("/", tags=["Template"], response_class=HTMLResponse)
-	async def auth_template(request: Request):
-		return templates.TemplateResponse("auth_panel.html", context={"request": request})
-
+	app.include_router(page_router)
 
 app.include_router(user_router)
 app.include_router(auth_router)
