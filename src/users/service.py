@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from auth import auth_service
+
 from database import (
 	Database,
 	RepositoryException
