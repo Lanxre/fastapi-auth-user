@@ -115,8 +115,6 @@ class UserService:
 		except HTTPException as http_err:
 			raise http_err
 
-
-
 		except Exception as err:
 			raise HTTPException(status_code=404, detail=str(err))
 
