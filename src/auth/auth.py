@@ -2,14 +2,14 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from config import settings
-from database import Database, db_helper
+from database import Database
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
-from passlib.context import CryptContext
 from models import User
+from passlib.context import CryptContext
+from users.repository import UserRepository
 from users.schema import Token, UserAuth
-from users.utils import UserUtils
 
 
 class AuthenticationService:
@@ -39,7 +39,7 @@ class AuthenticationService:
 
 	def get_access_token(self, db: Database, user_data: UserAuth) -> Token:
 		try:
-			user = UserUtils.get_user_by_email(db, user_data.username)
+			user = UserRepository(db).get_user_by_email(user_data.username)
 
 			if not self.verify_password(user_data.password, user.password):
 				raise HTTPException(status_code=409, detail="Wrong password")
@@ -62,7 +62,7 @@ class AuthenticationService:
 					headers={"WWW-Authenticate": "Bearer"},
 				)
 
-			user = UserUtils.get_user_by_email(db, email=payload.get('email'))
+			user = UserRepository(db).get_user_by_email(payload.get('email'))
 			if user is None:
 				raise HTTPException(status_code=404, detail="User not found")
 			return user

@@ -15,7 +15,6 @@ from .schema import (
 	UserTokenResponse,
 	UserUpdate, UserRoles
 )
-from .utils import UserUtils
 
 
 class UserService:
@@ -130,7 +129,7 @@ class UserService:
 			raise HTTPException(status_code=404, detail=str(err))
 
 	def __is_user_exist(self, user: Union[UserCreate, UserUpdate]):
-		isExist = UserUtils.get_user_by_email(self.__db, user.email)
+		isExist = self._user_repository.get_user_by_email(user.email)
 		if isExist is not None:
 			raise HTTPException(status_code=409, detail="Already exist with this email")
 

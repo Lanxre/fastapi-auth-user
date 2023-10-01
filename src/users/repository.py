@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, NoReturn
 
 from database import (
 	Database,
@@ -27,10 +27,7 @@ class UserRepository(BaseRepository):
 
 	def create(self, obj_in: UserCreate) -> User:
 		db_obj: User = User(**dict(obj_in))
-		role_obj = self.db.query(Role).filter(Role.name == RoleNameEnum.USER.value).first()
-
-		if not role_obj:
-			raise RepositoryException(status_code=500, message='Role [User] or default role not created')
+		role_obj = self.get_role(RoleNameEnum.USER)
 
 		db_obj.roles.append(role_obj)
 		self.db.add(db_obj)
@@ -87,3 +84,18 @@ class UserRepository(BaseRepository):
 			raise RepositoryException(status_code=500, message=f'Role [{role.value}] not created')
 
 		return role_obj
+
+	def get_user_by_email(self, email: Optional[str] = None) -> User:
+		try:
+			if email is not None:
+				return self.db.query(User).filter(User.email == email).first()
+		except Exception:
+			raise RepositoryException(status_code=404, message=f'Not Exist this email')
+
+	def create_user_with_role(self, user: User, role: RoleNameEnum) -> User:
+		role_obj = self.get_role(role)
+		user.roles.append(role_obj)
+		self.db.add(user)
+		self.db.commit()
+		self.db.refresh(user)
+		return user
