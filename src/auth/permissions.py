@@ -4,7 +4,7 @@ from database import Database, db_helper
 from fastapi import Depends, HTTPException
 from models import User, RoleNameEnum
 
-from .auth import auth_service
+from .service import auth_service
 from .exception import PermissionException
 
 
