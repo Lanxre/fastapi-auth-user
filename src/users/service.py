@@ -25,7 +25,7 @@ class UserService:
 
 	@property
 	def repository(self):
-		return self._user_repository, self._user_repository, self._user_repository
+		return self._user_repository
 
 	@repository.setter
 	def repository(self, db: Database):
