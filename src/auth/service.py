@@ -4,7 +4,7 @@ from typing import Optional
 from config import settings
 from database import Database
 from fastapi import HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from models import User
 from passlib.context import CryptContext
@@ -37,12 +37,12 @@ class AuthenticationService:
 	def verify_password(self, plain_password: str, hashed_password: str) -> bool:
 		return self.pwd_context.verify(plain_password, hashed_password)
 
-	def get_access_token(self, db: Database, user_data: UserAuth) -> Token:
+	def get_access_token(self, db: Database, user_data: OAuth2PasswordRequestForm) -> Token:
 		try:
 			user = UserRepository(db).get_user_by_email(user_data.username)
 
 			if not self.verify_password(user_data.password, user.password):
-				raise HTTPException(status_code=409, detail="Wrong password")
+				raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wrong password")
 
 			user_dict = UserAuth.from_orm(user).dict()
 			token: Token = self.create_access_token(data=user_dict)
@@ -64,7 +64,7 @@ class AuthenticationService:
 
 			user = UserRepository(db).get_user_by_email(payload.get('email'))
 			if user is None:
-				raise HTTPException(status_code=404, detail="User not found")
+				raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 			return user
 
 		except JWTError:

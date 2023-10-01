@@ -1,11 +1,12 @@
 from typing import List, Union
 
-
 from database import (
 	Database,
-	RepositoryException
+	RepositoryException,
+	db_helper
 )
 from fastapi import HTTPException
+from fastapi import status
 from models import RoleNameEnum
 
 from .repository import UserRepository
@@ -42,7 +43,8 @@ class UserService:
 			raise http_err
 
 		except Exception as err:
-			raise HTTPException(status_code=422, detail=str(err.args[0]))
+			raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+			                    detail=str(err.args[0]))
 
 	def create(self, user: UserCreate) -> UserTokenResponse:
 		try:
@@ -59,7 +61,8 @@ class UserService:
 			raise http_err
 
 		except Exception as err:
-			raise HTTPException(status_code=500, detail=str(err))
+			raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			                    detail=str(err))
 
 	def get_by_id(self, user_id: int) -> LiteUser:
 		try:
@@ -70,7 +73,8 @@ class UserService:
 			raise http_err
 
 		except Exception as err:
-			raise HTTPException(status_code=500, detail=str(err))
+			raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			                    detail=str(err))
 
 	def delete(self, user_id: int) -> LiteUser:
 		try:
@@ -81,7 +85,8 @@ class UserService:
 			raise http_err
 
 		except Exception as err:
-			raise HTTPException(status_code=500, detail=str(err))
+			raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			                    detail=str(err))
 
 	def update(self, user_id: int, user: UserUpdate) -> UserTokenResponse:
 		try:
@@ -96,7 +101,8 @@ class UserService:
 			raise http_err
 
 		except Exception as err:
-			raise HTTPException(status_code=500, detail=str(err))
+			raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			                    detail=str(err))
 
 	def get_user_roles(self, user_id: int) -> UserRoles:
 		try:
@@ -106,7 +112,8 @@ class UserService:
 			raise http_err
 
 		except Exception:
-			raise HTTPException(status_code=500, detail="Cannot get role this user")
+			raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			                    detail="Cannot get role this user")
 
 	def add_role_for_user(self, user_id: int, role: RoleNameEnum) -> UserRoles:
 		try:
@@ -116,7 +123,8 @@ class UserService:
 			raise http_err
 
 		except Exception as err:
-			raise HTTPException(status_code=404, detail=str(err))
+			raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+			                    detail=str(err))
 
 	def delete_user_role(self, user_id: int, role: RoleNameEnum) -> UserRoles:
 		try:
@@ -126,12 +134,14 @@ class UserService:
 			raise http_err
 
 		except Exception as err:
-			raise HTTPException(status_code=404, detail=str(err))
+			raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+			                    detail=str(err))
 
 	def __is_user_exist(self, user: Union[UserCreate, UserUpdate]):
 		isExist = self._user_repository.get_user_by_email(user.email)
 		if isExist is not None:
-			raise HTTPException(status_code=409, detail="Already exist with this email")
+			raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+			                    detail="Already exist with this email")
 
 	def __create_user_token_response(self, user) -> UserTokenResponse:
 		user_dict = UserCreate.from_orm(user).dict()
@@ -143,3 +153,6 @@ class UserService:
 			token=access_token,
 		)
 		return user_token
+
+
+user_service = UserService(next(db_helper.session_dependency()))
