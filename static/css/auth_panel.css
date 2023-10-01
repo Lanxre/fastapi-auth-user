@@ -11,7 +11,7 @@ body {
 
 .form-container {
     text-align: center;
-    padding: 20px;
+    padding: 25px;
     border: 1px solid #ccc;
     background-color: #f9f9f9;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -20,7 +20,7 @@ body {
 
 input[type="text"],
 input[type="password"] {
-    width: 100%;
+    width: 80%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
