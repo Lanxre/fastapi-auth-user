@@ -1,5 +1,5 @@
 from typing import List, Optional, NoReturn
-
+from fastapi import status
 from database import (
 	Database,
 	BaseRepository,
@@ -49,10 +49,12 @@ class UserRepository(BaseRepository):
 		user: User = self.get_by_id(user_id)
 
 		if not user:
-			raise RepositoryException(status_code=404, message='Not found user with this id')
+			raise RepositoryException(status_code=status.HTTP_404_NOT_FOUND,
+			                          message='Not found user with this id')
 
 		if role_obj in user.roles:
-			raise RepositoryException(status_code=404, message='User has this role')
+			raise RepositoryException(status_code=status.HTTP_409_CONFLICT,
+			                          message='User has this role')
 
 		user.roles.append(role_obj)
 		self.db.add(user)
@@ -64,13 +66,16 @@ class UserRepository(BaseRepository):
 		role_obj = self.get_role(role)
 		user: User = self.get_by_id(user_id)
 		if not user:
-			raise RepositoryException(status_code=404, message='Not found user with this id')
+			raise RepositoryException(status_code=status.HTTP_409_CONFLICT,
+			                          message='Not found user with this id')
 
 		if len(user.roles) == 1:
-			raise RepositoryException(status_code=404, message='User need have one role')
+			raise RepositoryException(status_code=status.HTTP_404_NOT_FOUND,
+			                          message='User need have one role')
 
 		if role_obj not in user.roles:
-			raise RepositoryException(status_code=404, message='User hasnt this role')
+			raise RepositoryException(status_code=status.HTTP_404_NOT_FOUND,
+			                          message='User hasnt this role')
 
 		user.roles.remove(role_obj)
 		self.db.add(user)
@@ -81,7 +86,8 @@ class UserRepository(BaseRepository):
 	def get_role(self, role):
 		role_obj = self.db.query(Role).filter(Role.name == role.value).first()
 		if not role_obj:
-			raise RepositoryException(status_code=500, message=f'Role [{role.value}] not created')
+			raise RepositoryException(status_code=status.HTTP_404_NOT_FOUND,
+			                          message=f'Role [{role.value}] not created')
 
 		return role_obj
 
@@ -90,7 +96,8 @@ class UserRepository(BaseRepository):
 			if email is not None:
 				return self.db.query(User).filter(User.email == email).first()
 		except Exception:
-			raise RepositoryException(status_code=404, message=f'Not Exist this email')
+			raise RepositoryException(status_code=status.HTTP_404_NOT_FOUND,
+			                          message=f'Not Exist this email')
 
 	def create_user_with_role(self, user: User, role: RoleNameEnum) -> User:
 		role_obj = self.get_role(role)
