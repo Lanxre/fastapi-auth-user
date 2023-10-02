@@ -53,7 +53,7 @@ def get_user(
 def create_user(
 		user: UserCreate,
 		db: Database = Depends(db_helper.session_dependency),
-
+		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
 	return user_service.create(user)
 
