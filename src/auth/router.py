@@ -5,6 +5,7 @@ from fastapi import (
 )
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.templating import Jinja2Templates
+from .user_forms import AuthUserDataForm
 from users.schema import UserAuth, Token
 
 
@@ -24,7 +25,7 @@ auth_router = APIRouter(
 
 @auth_router.post("/login", response_model=Token, status_code=status.HTTP_200_OK)
 def login_user(
-		user_data: OAuth2PasswordRequestForm = Depends(),
+		user_data: AuthUserDataForm = Depends(AuthUserDataForm.as_form),
 		db: Database = Depends(db_helper.session_dependency)
 ):
 	return auth_service.get_access_token(db, user_data)

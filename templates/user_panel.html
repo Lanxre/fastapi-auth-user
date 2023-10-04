@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+</head>
+<body>
+<div class="content">
+    <div class="user-profile">
+        <h1>Your Profile:</h1>
+        <p>Username: {{ user.username }}</p>
+        <p>Email: {{ user.email }}</p>
+        <p>Roles: {{ user.roles|map(attribute="name")|join(', ') }}</p>
+    </div>
+    <div class="list-users">
+        <h2>List of Users:</h2>
+        <ul>
+            {% for other_user in users %}
+            <li>{{ other_user.username }} - {{ other_user.email }} | Role: {{ other_user.roles|map(attribute="name")|join(',
+                ')}}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+</body>
+</html>
