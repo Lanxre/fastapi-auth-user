@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from config import settings
-from database import Database
+from database import Database, RepositoryException
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
@@ -10,7 +10,7 @@ from models import User
 from passlib.context import CryptContext
 from users.repository import UserRepository
 from users.schema import Token, UserAuth
-
+from .user_forms import AuthUserDataForm
 
 class AuthenticationService:
 
@@ -37,19 +37,27 @@ class AuthenticationService:
 	def verify_password(self, plain_password: str, hashed_password: str) -> bool:
 		return self.pwd_context.verify(plain_password, hashed_password)
 
-	def get_access_token(self, db: Database, user_data: OAuth2PasswordRequestForm) -> Token:
+	def get_access_token(self, db: Database, user_data: AuthUserDataForm) -> Token:
 		try:
-			user = UserRepository(db).get_user_by_email(user_data.username)
+			user = UserRepository(db).get_user_by_email(user_data.email)
 
 			if not self.verify_password(user_data.password, user.password):
-				raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wrong password")
+				raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+				                    detail="Wrong password")
 
 			user_dict = UserAuth.from_orm(user).dict()
 			token: Token = self.create_access_token(data=user_dict)
 			return token
 
-		except Exception as err:
+		except RepositoryException as err:
 			raise err
+
+		except HTTPException as http_err:
+			raise http_err
+
+		except Exception as err:
+			raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			                    detail="Internal server error")
 
 	def get_user_by_token(self, db: Database, token: str) -> User:
 		try:
@@ -64,7 +72,8 @@ class AuthenticationService:
 
 			user = UserRepository(db).get_user_by_email(payload.get('email'))
 			if user is None:
-				raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+				raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+				                    detail="User not found")
 			return user
 
 		except JWTError:

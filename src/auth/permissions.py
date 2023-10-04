@@ -29,3 +29,5 @@ class RolePermissions:
 
 		except Exception as err:
 			raise HTTPException(status_code=404, detail="Permission denied")
+
+
