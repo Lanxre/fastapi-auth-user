@@ -7,7 +7,7 @@ from database import (
 )
 from fastapi import HTTPException
 from fastapi import status
-from models import RoleNameEnum
+from models import RoleNameEnum, User
 
 from .repository import UserRepository
 from .schema import (
@@ -136,6 +136,13 @@ class UserService:
 		except Exception as err:
 			raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
 			                    detail=str(err))
+
+	def has_role(self, user: User, role: RoleNameEnum) -> bool:
+		for user_role in user.roles:
+			if role.value == user_role.name:
+				return True
+
+		return False
 
 	def __is_user_exist(self, user: Union[UserCreate, UserUpdate]):
 		isExist = self._user_repository.get_user_by_email(user.email)
