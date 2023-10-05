@@ -10,8 +10,13 @@
 <main>
     <section>
         <div>
-            <h2>Oops! Something went wrong.</h2>
-            <p>{{ error }}</p>
+            {% if error.status_code %}
+                 <h2> Request Status: {{ error.status_code }}</h2>
+                <p> {{ error.detail}} </p>
+            {% else %}
+                <h2>Oops! Something went wrong.</h2>
+                <p> {{ error }} </p>
+            {% endif %}
         </div>
     </section>
 </main>
