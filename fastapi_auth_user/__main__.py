@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi_auth_user.auth import auth_router
 from fastapi_auth_user.users import user_router
 
-app = FastAPI(title='AuthApi')
+auth_app = FastAPI(title='AuthApi')
 
 origins = [
 	"http://localhost:3005",
@@ -16,7 +16,7 @@ origins = [
 	"http://localhost",
 ]
 
-app.add_middleware(
+auth_app.add_middleware(
 	CORSMiddleware,
 	allow_origins=origins,
 	allow_credentials=True,
@@ -31,12 +31,12 @@ args = parser.parse_args()
 if args.template:
 	from fastapi_auth_user.page import page_router
 
-	app.mount("/static", StaticFiles(directory="fastapi_auth_user/static"), name="static")
-	app.include_router(page_router)
+	auth_app.mount("/static", StaticFiles(directory="fastapi_auth_user/static"), name="static")
+	auth_app.include_router(page_router)
 
-app.include_router(user_router)
-app.include_router(auth_router)
+auth_app.include_router(user_router)
+auth_app.include_router(auth_router)
 
 
 def start():
-	uvicorn.run('fastapi_auth_user.__main__:app', host="localhost", port=3000, reload=True)
+	uvicorn.run('fastapi_auth_user.__main__:auth_app', host="localhost", port=3000, reload=True)
