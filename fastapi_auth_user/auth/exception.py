@@ -1,4 +1,4 @@
-from models import RoleNameEnum
+from fastapi_auth_user.models import RoleNameEnum
 
 
 class PermissionException(Exception):

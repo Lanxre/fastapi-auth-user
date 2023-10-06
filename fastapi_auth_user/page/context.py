@@ -1,7 +1,8 @@
 from typing import TypedDict, Optional
 
 from fastapi import Request
-from auth.user_forms import AuthUserDataForm
+
+from fastapi_auth_user.auth.user_forms import AuthUserDataForm
 
 
 class RequestContext(TypedDict):

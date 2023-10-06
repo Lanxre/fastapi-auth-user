@@ -1,13 +1,12 @@
-import uvicorn
 import argparse
-from fastapi import FastAPI, Request, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 
-from users.router import user_router
-from auth.router import auth_router
+import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
+from fastapi_auth_user.auth import auth_router
+from fastapi_auth_user.users import user_router
 
 app = FastAPI(title='AuthApi')
 
@@ -30,12 +29,14 @@ parser.add_argument("-t", "--template", required=False, action=argparse.BooleanO
 args = parser.parse_args()
 
 if args.template:
-	from page import page_router
-	app.mount("/static", StaticFiles(directory="static"), name="static")
+	from fastapi_auth_user.page import page_router
+
+	app.mount("/static", StaticFiles(directory="fastapi_auth_user/static"), name="static")
 	app.include_router(page_router)
 
 app.include_router(user_router)
 app.include_router(auth_router)
 
-if __name__ == '__main__':
-	uvicorn.run('__main__:app', host="localhost", port=3000, reload=True)
+
+def start():
+	uvicorn.run('fastapi_auth_user.__main__:app', host="localhost", port=3000, reload=True)

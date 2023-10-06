@@ -1,24 +1,26 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-from config import settings
-from database import Database, RepositoryException
 from fastapi import HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
-from models import User
 from passlib.context import CryptContext
-from users.repository import UserRepository
-from users.schema import Token, UserAuth
+
 from .user_forms import AuthUserDataForm
+from ..config import settings
+from ..database import Database, RepositoryException
+from ..models import User
+from ..users.repository import UserRepository
+from ..users.schema import Token, UserAuth
+
 
 class AuthenticationService:
 
 	def __init__(self):
 		self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-		self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+		self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login", scheme_name='scheme_name')
 
-	def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None) -> str:
+	def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None) -> Token:
 		to_encode = data.copy()
 		if expires_delta:
 			expire = datetime.utcnow() + expires_delta
@@ -82,6 +84,3 @@ class AuthenticationService:
 				detail="Invalid authentication credentials",
 				headers={"WWW-Authenticate": "Bearer"},
 			)
-
-
-auth_service = AuthenticationService()

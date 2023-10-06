@@ -1,14 +1,11 @@
 from typing import List
 
 from fastapi import status
-from models import User
 from sqlalchemy.exc import IntegrityError
 
-from database import (
-	Database,
-	ModelType
-)
+from .database import Database, ModelType
 from .exception import RepositoryException
+from ..models import User
 
 
 class BaseRepository:
@@ -76,7 +73,8 @@ class BaseRepository:
 			db_obj: User = self.model(**dict(obj_in))
 
 			if not db_obj:
-				raise RepositoryException(status_code=500, message='Create object error')
+				raise RepositoryException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+				                          message='Create object error')
 
 			self.db.add(db_obj)
 			self.db.commit()

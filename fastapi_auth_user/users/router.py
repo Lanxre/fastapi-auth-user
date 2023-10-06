@@ -1,15 +1,9 @@
 from typing import List
 
-from auth import RolePermissions
-from database import (
-	Database,
-	db_helper
-)
 from fastapi import (
 	APIRouter,
 	Depends
 )
-from models import RoleNameEnum
 
 from .schema import (
 	UserCreate,
@@ -17,7 +11,10 @@ from .schema import (
 	LiteUser,
 	UserUpdate, UserRoles
 )
-from .service import user_service
+from .service import UserService
+from ..auth.permissions import RolePermissions
+from ..database import Database, db_helper
+from ..models import RoleNameEnum
 
 user_router = APIRouter(
 	prefix='/api',
@@ -28,6 +25,8 @@ user_router = APIRouter(
 
 permissions_admin_moderator = RolePermissions([RoleNameEnum.ADMIN, RoleNameEnum.Moderator])
 permissions_user = RolePermissions([RoleNameEnum.USER])
+
+user_service = UserService(next(db_helper.session_dependency()))
 
 
 @user_router.get("/", response_model=List[LiteUser])

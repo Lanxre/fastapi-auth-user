@@ -1,15 +1,14 @@
 from typing import Optional
 
-from auth import auth_service
-from database import Database, db_helper
 from fastapi import HTTPException
-from models import User, RoleNameEnum
-from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates, _TemplateResponse
-from users import user_service
-from users.schema import Token
 
 from .context import RequestContext, ErrorContext, DataContext
+from ..auth.permissions import auth_service
+from ..database import Database, db_helper
+from ..models import User, RoleNameEnum
+from ..users import user_service
+from ..users.schema import Token
 
 templates_name = {
 	'auth_panel': 'auth_panel.html',
@@ -24,7 +23,7 @@ class TemplateService:
 			self, db: Database
 	):
 		self.db = db
-		self.templates = Jinja2Templates(directory="templates")
+		self.templates = Jinja2Templates(directory="fastapi_auth_user/templates")
 
 	def generate_template(
 			self, file_name: Optional[str], context: RequestContext

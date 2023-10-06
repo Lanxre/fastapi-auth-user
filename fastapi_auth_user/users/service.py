@@ -1,21 +1,13 @@
 from typing import List, Union
 
-from database import (
-	Database,
-	RepositoryException,
-	db_helper
-)
 from fastapi import HTTPException
 from fastapi import status
-from models import RoleNameEnum, User
 
 from .repository import UserRepository
-from .schema import (
-	LiteUser,
-	UserCreate,
-	UserTokenResponse,
-	UserUpdate, UserRoles
-)
+from .schema import UserCreate, LiteUser, UserTokenResponse, UserUpdate, UserRoles
+from ..auth.permissions import auth_service
+from ..database import Database, RepositoryException
+from ..models import RoleNameEnum, User
 
 
 class UserService:
@@ -160,6 +152,3 @@ class UserService:
 			token=access_token,
 		)
 		return user_token
-
-
-user_service = UserService(next(db_helper.session_dependency()))

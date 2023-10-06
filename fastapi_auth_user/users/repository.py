@@ -1,22 +1,10 @@
 from typing import List, Optional
 
-from database import (
-	Database,
-	BaseRepository,
-	RepositoryException
-)
 from fastapi import status
-from models import (
-	User,
-	Role,
-	RoleNameEnum
-)
 
-from .schema import (
-	LiteUser,
-	UserCreate,
-	UserUpdate
-)
+from .schema import LiteUser, UserCreate, UserUpdate
+from ..database import BaseRepository, Database, RepositoryException
+from ..models import User, RoleNameEnum, Role
 
 
 class UserRepository(BaseRepository):
@@ -93,6 +81,13 @@ class UserRepository(BaseRepository):
 		return role_obj
 
 	def get_user_by_email(self, email: Optional[str] = None) -> User:
+
+		if email is None:
+			raise RepositoryException(
+				status_code=status.HTTP_404_NOT_FOUND,
+				message=f'Wrong email!'
+			)
+
 		user: User = self.db.query(User).filter(User.email == email).first()
 		if user is None:
 			raise RepositoryException(

@@ -1,11 +1,12 @@
 import inspect
+from typing import Type, Optional
+
 from fastapi import Form
 from pydantic import BaseModel
-from typing import Type
 from pydantic.fields import ModelField
 
 
-def as_form(cls: Type[BaseModel]):
+def as_form(cls: Type[BaseModel]) -> Type[BaseModel]:
 	new_parameters = []
 
 	for _, model_field in cls.__fields__.items():
@@ -31,5 +32,6 @@ def as_form(cls: Type[BaseModel]):
 
 @as_form
 class AuthUserDataForm(BaseModel):
-	email: str = Form(...)
+	email: Optional[str] = Form(None)
 	password: str = Form(...)
+	username: Optional[str] = Form(None)

@@ -1,11 +1,11 @@
-from config import settings
+from ..config import settings
 from .exception import DataException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import (
 	sessionmaker,
 	Session
 )
-from models import Base
+from ..models import Base
 from typing import TypeAlias
 
 Database: TypeAlias = Session
