@@ -43,6 +43,12 @@ class AuthenticationService:
 		try:
 			user = UserRepository(db).get_user_by_email(user_data.email)
 
+			if user is None:
+				raise RepositoryException(
+					status_code=status.HTTP_404_NOT_FOUND,
+					message=f'There is no user with that e-mail address.'
+				)
+
 			if not self.verify_password(user_data.password, user.password):
 				raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
 				                    detail="Wrong password")
