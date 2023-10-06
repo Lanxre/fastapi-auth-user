@@ -1,5 +1,5 @@
 
-from database import Database
+from .database import Database
 from fastapi_auth_user.models import Role, RoleNameEnum
 
 

@@ -33,7 +33,6 @@ user_service = UserService(next(db_helper.session_dependency()))
 def get_users(
 		skip: int = 0,
 		limit: int = 10,
-		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_user.get_permissions)
 ):
 	return user_service.get_all_users(skip, limit)
@@ -42,7 +41,6 @@ def get_users(
 @user_router.get("/{user_id}", response_model=LiteUser)
 def get_user(
 		user_id: int = 1,
-		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_user.get_permissions)
 ):
 	return user_service.get_by_id(user_id)
@@ -51,7 +49,6 @@ def get_user(
 @user_router.post("/", response_model=UserTokenResponse, status_code=201)
 def create_user(
 		user: UserCreate,
-		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
 	return user_service.create(user)
@@ -61,7 +58,6 @@ def create_user(
 def update_user(
 		user_id: int,
 		user: UserUpdate,
-		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
 	return user_service.update(user_id, user)
@@ -70,7 +66,6 @@ def update_user(
 @user_router.delete("/{user_id}", response_model=LiteUser)
 def delete_user(
 		user_id: int,
-		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
 	return user_service.delete(user_id)
@@ -79,7 +74,6 @@ def delete_user(
 @user_router.get("/user/role/{user_id}", response_model=UserRoles)
 def get_user_roles(
 		user_id: int,
-		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
 	return user_service.get_user_roles(user_id)
@@ -89,7 +83,6 @@ def get_user_roles(
 def add_user_role(
 		user_id: int,
 		role: RoleNameEnum,
-		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
 	return user_service.add_role_for_user(user_id, role)
@@ -99,7 +92,6 @@ def add_user_role(
 def add_user_role(
 		user_id: int,
 		role: RoleNameEnum,
-		db: Database = Depends(db_helper.session_dependency),
 		access: bool = Depends(permissions_admin_moderator.get_permissions)
 ):
 	return user_service.delete_user_role(user_id, role)

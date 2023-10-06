@@ -89,11 +89,6 @@ class UserRepository(BaseRepository):
 			)
 
 		user: User = self.db.query(User).filter(User.email == email).first()
-		if user is None:
-			raise RepositoryException(
-				status_code=status.HTTP_404_NOT_FOUND,
-				message=f'There is no user with that e-mail address.'
-			)
 
 		return user
 
