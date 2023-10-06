@@ -1,6 +1,6 @@
 from typing import Union, List
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 
 from .exception import PermissionException
 from .service import AuthenticationService
@@ -29,7 +29,7 @@ class RolePermissions:
 			else:
 				raise PermissionException(message=f'Permission denied', role=self.roles[0])
 		except PermissionException as err:
-			raise HTTPException(status_code=404, detail=str(err))
+			raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
 
 		except Exception as err:
-			raise HTTPException(status_code=404, detail="Permission denied")
+			raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Permission denied")
