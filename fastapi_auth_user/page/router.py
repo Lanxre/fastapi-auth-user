@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, status
 from starlette.responses import HTMLResponse
 
 from .service import template_service, templates_name, RequestContext
@@ -7,9 +7,8 @@ from ..auth.user_forms import AuthUserDataForm
 page_router = APIRouter(
 	tags=["Pages"],
 	dependencies=[],
-	responses={404: {"description": "Not found"}},
+	responses={status.HTTP_404_NOT_FOUND: {"description": "Not found"}},
 )
-
 
 
 @page_router.get("/", response_class=HTMLResponse)

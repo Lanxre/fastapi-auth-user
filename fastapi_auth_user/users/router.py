@@ -1,9 +1,6 @@
 from typing import List
 
-from fastapi import (
-	APIRouter,
-	Depends
-)
+from fastapi import APIRouter, Depends, status
 
 from .schema import (
 	UserCreate,
@@ -13,14 +10,14 @@ from .schema import (
 )
 from .service import UserService
 from ..auth.permissions import RolePermissions
-from ..database import Database, db_helper
+from ..database import db_helper
 from ..models import RoleNameEnum
 
 user_router = APIRouter(
 	prefix='/api',
 	tags=["Users"],
 	dependencies=[],
-	responses={404: {"description": "Not found"}},
+	responses={status.HTTP_404_NOT_FOUND: {"description": "Not found"}},
 )
 
 permissions_admin_moderator = RolePermissions([RoleNameEnum.ADMIN, RoleNameEnum.Moderator])

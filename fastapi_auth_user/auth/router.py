@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends, status
 from starlette.templating import Jinja2Templates
 
+from .service import AuthenticationService
 from .user_forms import AuthUserDataForm
 from ..database import db_helper, Database
 from ..users.schema import Token, UserAuth
-from .service import AuthenticationService
 
 auth_router = APIRouter(
 	prefix='/api',
 	tags=["Authentication"],
 	dependencies=[],
-	responses={404: {"description": "Not found"}},
+	responses={status.HTTP_404_NOT_FOUND: {"description": "Not found"}},
 )
 
 auth_service = AuthenticationService()
