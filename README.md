@@ -57,7 +57,7 @@ INFO:  Uvicorn running on http://localhost:3000 (Press CTRL+C to quit)
 Open your browser at <a href="http://localhost:3000/docs" class="external-link" target="_blank">http://localhost:3000/docs.
 
 You will see:
-![img.png](img.png)
+![img.png](images/img.png)
 
 You already created an API that:
 
