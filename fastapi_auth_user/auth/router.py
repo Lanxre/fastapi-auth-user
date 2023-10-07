@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, status
 from starlette.templating import Jinja2Templates
 
-from .service import AuthenticationService
 from .user_forms import AuthUserDataForm
 from ..database import db_helper, Database
 from ..users.schema import Token, UserAuth
+from .service import AuthenticationService
 
 auth_router = APIRouter(
 	prefix='/api',
