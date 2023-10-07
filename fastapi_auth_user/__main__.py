@@ -1,4 +1,5 @@
 import argparse
+from os import path
 
 import uvicorn
 from fastapi import FastAPI
@@ -31,7 +32,8 @@ args = parser.parse_args()
 if args.template:
 	from fastapi_auth_user.page import page_router
 
-	auth_app.mount("/static", StaticFiles(directory="fastapi_auth_user/static"), name="static")
+	auth_app.mount("/static", StaticFiles(directory=path.dirname(path.realpath(__file__)) + r"/static"),
+	               name="static")
 	auth_app.include_router(page_router)
 
 auth_app.include_router(user_router)

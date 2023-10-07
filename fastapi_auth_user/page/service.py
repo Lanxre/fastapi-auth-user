@@ -1,5 +1,5 @@
 from typing import Optional
-
+from os import getcwd
 from fastapi import HTTPException
 from starlette.templating import Jinja2Templates, _TemplateResponse
 
@@ -23,7 +23,7 @@ class TemplateService:
 			self, db: Database
 	):
 		self.db = db
-		self.templates = Jinja2Templates(directory="fastapi_auth_user/templates")
+		self.templates = Jinja2Templates(directory=getcwd() + r"\fastapi_auth_user\templates")
 
 	def generate_template(
 			self, file_name: Optional[str], context: RequestContext
