@@ -99,3 +99,10 @@ class UserRepository(BaseRepository):
 		self.db.commit()
 		self.db.refresh(user)
 		return user
+
+	def set_password(self, user_id: int, new_password: str) -> User:
+		user = self.get_by_id(user_id)
+		user.password = new_password
+		self.db.commit()
+		self.db.refresh(user)
+		return user

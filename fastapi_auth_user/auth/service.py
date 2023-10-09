@@ -11,12 +11,13 @@ from ..config import settings
 from ..database import Database, RepositoryException
 from ..models import User
 from ..users.repository import UserRepository
-from ..users.schema import Token, UserAuth
+from ..users.schema import Token, UserAuth, UserTokenResponse
 
 
 class AuthenticationService:
 
-	def __init__(self):
+	def __init__(self, db: Database):
+		self.__db = db
 		self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 		self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login", scheme_name='scheme_name')
 
@@ -39,9 +40,9 @@ class AuthenticationService:
 	def verify_password(self, plain_password: str, hashed_password: str) -> bool:
 		return self.pwd_context.verify(plain_password, hashed_password)
 
-	def get_access_token(self, db: Database, user_data: AuthUserDataForm) -> Token:
+	def get_access_token(self, user_data: AuthUserDataForm) -> Token:
 		try:
-			user = UserRepository(db).get_user_by_email(user_data.email)
+			user = UserRepository(self.__db).get_user_by_email(user_data.email)
 
 			if user is None:
 				raise RepositoryException(
@@ -67,7 +68,7 @@ class AuthenticationService:
 			raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
 			                    detail="Internal server error")
 
-	def get_user_by_token(self, db: Database, token: str) -> User:
+	def get_user_by_token(self, token: str) -> User:
 		try:
 			payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
 
@@ -78,7 +79,7 @@ class AuthenticationService:
 					headers={"WWW-Authenticate": "Bearer"},
 				)
 
-			user = UserRepository(db).get_user_by_email(payload.get('email'))
+			user = UserRepository(self.__db).get_user_by_email(payload.get('email'))
 			if user is None:
 				raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
 				                    detail="User not found")
@@ -90,3 +91,12 @@ class AuthenticationService:
 				detail="Invalid authentication credentials",
 				headers={"WWW-Authenticate": "Bearer"},
 			)
+
+	def reset_password(self, token: str, new_password: str) -> UserTokenResponse:
+		try:
+			hashed_password = self.password_hash(new_password)
+			user: User = self.get_user_by_token(token)
+			updated_user = UserRepository(self.__db).set_password(user.id, hashed_password)
+			return updated_user
+		except RepositoryException as err:
+			raise err
