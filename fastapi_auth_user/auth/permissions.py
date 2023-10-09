@@ -7,8 +7,7 @@ from .service import AuthenticationService
 from ..database import Database, db_helper
 from ..models import RoleNameEnum, User
 
-auth_service = AuthenticationService()
-
+auth_service = AuthenticationService(next(db_helper.session_dependency()))
 
 class RolePermissions:
 	def __init__(self, roles: List[RoleNameEnum]):
@@ -16,12 +15,11 @@ class RolePermissions:
 
 	def get_permissions(
 			self,
-			db: Database = Depends(db_helper.session_dependency),
 			token: str = Depends(auth_service.oauth2_scheme)
 	) -> Union[bool, PermissionException]:
 		try:
 
-			current_user: User = auth_service.get_user_by_token(db, token)
+			current_user: User = auth_service.get_user_by_token(token)
 			for role in self.roles:
 				for user_role in current_user.roles:
 					if role.value == user_role.name:
