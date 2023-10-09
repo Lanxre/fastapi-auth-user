@@ -1,10 +1,10 @@
 from os import path
-from typing import Optional
+from typing import Optional, Union
 
 from fastapi import HTTPException
 from starlette.templating import Jinja2Templates, _TemplateResponse
 
-from .context import RequestContext, ErrorContext, DataContext
+from .context import RequestContext, ErrorContext, DataContext, TokenUserContext
 from ..auth.permissions import auth_service
 from ..database import Database, db_helper
 from ..models import User, RoleNameEnum
@@ -28,7 +28,7 @@ class TemplateService:
 			directory="\\".join(path.dirname(path.realpath(__file__)).split("\\")[:-1]) + "\\templates")
 
 	def generate_template(
-			self, file_name: Optional[str], context: RequestContext
+			self, file_name: Optional[str], context: Union[RequestContext, TokenUserContext]
 	) -> _TemplateResponse:
 		try:
 			if file_name is None:
