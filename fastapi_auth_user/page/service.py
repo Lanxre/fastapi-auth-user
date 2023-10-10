@@ -9,7 +9,7 @@ from ..auth.permissions import auth_service
 from ..database import Database, db_helper
 from ..models import User, RoleNameEnum
 from ..users import user_service
-from ..users.schema import Token
+from ..users.schema import Tokens
 
 templates_name = {
 	'auth_panel': 'auth_panel.html',
@@ -51,14 +51,14 @@ class TemplateService:
 					dict(request=context.get('request'), error=ValueError('Template is None'))
 				)
 
-			token: Token = auth_service.get_access_token(self.db, context.get('data'))
-			user: User = auth_service.get_user_by_token(self.db, token.access_token)
+			tokens: Tokens = auth_service.get_tokens(context.get('data'))
+			user: User = auth_service.get_user_by_token(tokens.access_token.token)
 
 			users = user_service.get_all_users() if user_service.has_role(user, RoleNameEnum.ADMIN) else []
 
 			return self.generate_template(file_name, context=dict(
 				request=context.get('request'),
-				token=token,
+				token=tokens.access_token,
 				user=user,
 				users=users
 			))
