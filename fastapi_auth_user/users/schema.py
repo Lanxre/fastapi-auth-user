@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from typing import List
 
 from pydantic import (
@@ -48,7 +49,24 @@ class LiteUser(UserBase):
 
 
 class Token(BaseModel):
+	token_time: datetime
+	token: str
+
+
+class RefreshToken(BaseModel):
+	refresh_token: str = Field(default='Refresh token', title="Refresh token", min_length=5)
+
+
+class Tokens(BaseModel):
+	access_token: Token
+	refresh_token: Token
+
+
+class TokenData(BaseModel):
+	access_token_time: datetime
 	access_token: str
+	refresh_token: str
+	refresh_token_time: datetime
 
 
 class UserToken(LiteUser):
