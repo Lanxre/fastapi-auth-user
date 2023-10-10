@@ -144,7 +144,7 @@ class UserService:
 
 	def __create_user_token_response(self, user) -> UserTokenResponse:
 		user_dict = UserCreate.from_orm(user).dict()
-		access_token = auth_service.create_access_token(data=user_dict)
+		access_token = auth_service.create_token(data=user_dict)
 		user_token = UserTokenResponse(
 			id=user.id,
 			username=user.email,
