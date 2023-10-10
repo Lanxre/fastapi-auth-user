@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 	DATABASE_URL: str = os.getenv("DATABASE_URL")
 
 	SECRET_KEY: str = os.getenv("SECRET_KEY")
+	ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 	ALGORITHM: str = os.getenv("ALGORITHM")
 
 	def get_db_url(self) -> str:
